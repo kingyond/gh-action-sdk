@@ -2,10 +2,10 @@
 
 set -ef
 cd /home/build/openwrt/
+cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ./scripts/feeds update -a
-
+make defconfig
 ./scripts/feeds install -a
 
-make defconfig
 
-make package/overture/{clean,compile} -j1 V=s
+make package/$PACKAGES/{clean,compile} -j1 V=s
