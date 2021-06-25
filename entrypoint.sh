@@ -6,7 +6,7 @@ FEEDNAME="${FEEDNAME:-action}"
 BUILD_LOG="${BUILD_LOG:-1}"
 
 cd /home/build/openwrt/
-cp -r /github/workspace "package/${PKG}"
+cp -r /github/workspace "package/CUSTOM-PKG"
 if [ -n "$KEY_BUILD" ]; then
 	echo "$KEY_BUILD" > key-build
 	SIGNED_PACKAGES="y"
