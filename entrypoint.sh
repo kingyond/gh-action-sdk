@@ -12,7 +12,6 @@ make defconfig
 make package/$PACKAGES/{clean,compile} -j1 V=s
 
 if [ -d bin/ ]; then
+	ls -R bin/
 	mv bin/ "$GITHUB_WORKSPACE/"
 fi
-
-ls -R bin
