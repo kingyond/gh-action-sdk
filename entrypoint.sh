@@ -6,7 +6,7 @@ FEEDNAME="${FEEDNAME:-action}"
 BUILD_LOG="${BUILD_LOG:-1}"
 
 cd /home/build/openwrt/
-
+cp -r "${GITHUB_WORKSPACE}" "package/${github.repository}"
 if [ -n "$KEY_BUILD" ]; then
 	echo "$KEY_BUILD" > key-build
 	SIGNED_PACKAGES="y"
