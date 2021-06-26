@@ -2,10 +2,16 @@
 
 set -ef
 cd /home/build/openwrt/
-echo "dir $CUSTOM_PKG_DIR"
 cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ls "package/$CUSTOM_PKG_DIR"
-ls -R "package/$CUSTOM_PKG_DIR"
-echo "ahhhh"
+./scripts/feeds update -a
+make defconfig
+./scripts/feeds install -a
 
-ls -R
+
+make package/$PACKAGES/{clean,compile} -j1 V=s
+
+if [ -d bin/ ]; then
+	ls -R bin/
+	mv bin/ "$GITHUB_WORKSPACE/"
+fi
