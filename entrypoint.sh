@@ -9,7 +9,7 @@ make defconfig
 ./scripts/feeds install -a
 
 
-make package/$PACKAGES/{clean,compile} -j1 V=s
+make package/$PACKAGES/compile -j1 V=s
 
 if [ -d bin/ ]; then
 	ls -R bin/
