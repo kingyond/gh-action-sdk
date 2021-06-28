@@ -20,26 +20,35 @@ cat feeds.conf
 ./scripts/feeds update -a > /dev/null
 make defconfig > /dev/null
 
-
-if [ -z "$FEEDS_NEED_INSTALL" ]; then
-	./scripts/feeds install -d y -f -a
-else
-	for FEED in $FEEDS_NEED_INSTALL; do
-		./scripts/feeds install -a -p $FEED -f > /dev/null
-	done
+if [ ! -z "$CUSTOM_PKG_DIR" ];then
+	cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 fi
-
-cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
-ls "package/$CUSTOM_PKG_DIR"
 
 
 if [ -z "$PACKAGES" ]; then
 	# compile all packages in feed
+
+	if [ -z "$FEEDS_NEED_INSTALL" ]; then
+		./scripts/feeds install -d y -f -a
+	else
+		for FEED in $FEEDS_NEED_INSTALL; do
+			./scripts/feeds install -d y -a -p $FEED -f > /dev/null
+		done
+	fi
+
 	make \
 		-j "$(nproc)" \
 		V=s
 
 else
+	if [ -z "$FEEDS_NEED_INSTALL" ]; then
+		./scripts/feeds install -f -a
+	else
+		for FEED in $FEEDS_NEED_INSTALL; do
+			./scripts/feeds install -p $FEED -f > /dev/null
+		done
+	fi
+
 	for pkg in $PACKAGES; do
 		make package/$pkg/compile \
 			-j "$(nproc)" \
