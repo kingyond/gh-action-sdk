@@ -40,6 +40,8 @@ if [ -z "$PACKAGES" ]; then
 			./scripts/feeds install -d y -a -p $FEED -f > /dev/null
 		done
 	fi
+	make tools/install V=s
+	make toolchain/install V=s
 
 	make \
 		-j "$(nproc)" \
@@ -53,6 +55,9 @@ else
 			./scripts/feeds install -a -p $FEED -f > /dev/null
 		done
 	fi
+
+	make tools/install V=s
+	make toolchain/install V=s
 
 	for pkg in $PACKAGES; do
 		make package/$pkg/compile \
