@@ -2,6 +2,10 @@
 
 set -ef
 
+cd /home/build/openwrt/
+
+
+
 cat feeds.conf.default >> feeds.conf
 
 #shellcheck disable=SC2153
@@ -10,7 +14,6 @@ for EXTRA_FEED in $EXTRA_FEEDS; do
 done
 cat feeds.conf
 
-cd /home/build/openwrt/
 cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ls "package/$CUSTOM_PKG_DIR"
 
