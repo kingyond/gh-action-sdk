@@ -45,7 +45,7 @@ else
 		./scripts/feeds install -f -a
 	else
 		for FEED in $FEEDS_NEED_INSTALL; do
-			./scripts/feeds install -p $FEED -f > /dev/null
+			./scripts/feeds install -a -p $FEED -f > /dev/null
 		done
 	fi
 
