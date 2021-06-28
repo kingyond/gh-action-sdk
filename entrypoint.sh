@@ -56,7 +56,7 @@ else
 	done
 fi
 
-if [ "INDEX" = 1 ];then
+if [ "$INDEX" = 1 ];then
 	make package/index
 fi
 
