@@ -14,6 +14,7 @@ runs:
           --env CUSTOM_PKG_DIR\
           --env FEEDS_NEED_INSTALL \
           --env EXTRA_FEEDS \
+          --env INDEX \
           --workdir /github/workspace \
           -v $(pwd):/github/workspace \
           -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE \
