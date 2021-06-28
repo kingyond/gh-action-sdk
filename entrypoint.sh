@@ -14,8 +14,10 @@ cd /home/build/openwrt/
 cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ls "package/$CUSTOM_PKG_DIR"
 
+for pkg in $PACKAGES; do
+	make package/$pkg/compile -j1 V=s
+done
 
-make package/$PACKAGES/compile -j1 V=s
 
 if [ -d bin/ ]; then
 	ls -R bin/
