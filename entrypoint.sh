@@ -19,7 +19,15 @@ cat feeds.conf
 
 ./scripts/feeds update -a > /dev/null
 make defconfig > /dev/null
-./scripts/feeds install -a > /dev/null
+
+if [ -z "$FEEDS_NEED_INSTALL" ]; then
+	./scripts/feeds install -a > /dev/null
+else
+	for FEED in $FEEDS_NEED_INSTALL; do
+		./scripts/feeds install -a -p $FEED > /dev/null
+	done
+fi
+
 
 cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ls "package/$CUSTOM_PKG_DIR"
