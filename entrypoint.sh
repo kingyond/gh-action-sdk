@@ -5,6 +5,9 @@ set -ef
 cd /home/build/openwrt/
 
 
+if [ -n "$KEY_BUILD" ]; then
+	echo "$KEY_BUILD" > key-build
+fi
 
 cat feeds.conf.default >> feeds.conf
 
