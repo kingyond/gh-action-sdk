@@ -17,6 +17,10 @@ for EXTRA_FEED in $EXTRA_FEEDS; do
 done
 cat feeds.conf
 
+./scripts/feeds update -a > /dev/null
+make defconfig > /dev/null
+./scripts/feeds install -a > /dev/null
+
 cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
 ls "package/$CUSTOM_PKG_DIR"
 
