@@ -4,6 +4,11 @@ set -ef
 
 cd /home/build/openwrt/
 
+sudo apt-get update
+sudo apt-get install upx -y
+cp /usr/bin/upx staging_dir/host/bin
+cp /usr/bin/upx-ucl staging_dir/host/bin
+
 
 if [ -n "$KEY_BUILD" ]; then
 	echo "$KEY_BUILD" > key-build
