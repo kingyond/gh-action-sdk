@@ -68,9 +68,23 @@ else
 	fi
 
 	for pkg in $PACKAGES; do
-		make package/$pkg/compile \
-			-j "$(nproc)" \
-			V=s
+		local support_archs=$(echo "$pkg" | awk '{printf $2}')
+		local p=$(echo "" | awk '{printf $1}')
+		if [ ! -z $support_archs ];then
+			sup='|' read -r -a array <<< "$support_archs"
+			for arch in "${array[@]}"
+			do
+				if [ $ARCH = $arch ]; then
+					make \
+						-j "$(nproc)" \
+						V=s
+				fi
+			done
+		else
+			make package/$pkg/compile \
+				-j "$(nproc)" \
+				V=s
+		fi
 	done
 fi
 
