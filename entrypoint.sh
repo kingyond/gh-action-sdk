@@ -44,7 +44,7 @@ if [ -z "$PACKAGES" ]; then
 	echo "$SCRIPT_BEFORE_BUILD"
 	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
 		echo "Run script before build..."
-		sh -c $SCRIPT_BEFORE_BUILD
+		sh -c "$SCRIPT_BEFORE_BUILD"
 	fi
 
 	make \
@@ -64,7 +64,7 @@ else
 
 	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
 		echo "Run script before build..."
-		sh -c $SCRIPT_BEFORE_BUILD
+		sh -c "$SCRIPT_BEFORE_BUILD"
 	fi
 
 	for pkg in $PACKAGES; do
