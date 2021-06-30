@@ -11,6 +11,7 @@ runs:
           --env GITHUB_WORKSPACE \
           --env KEY_BUILD \
           --env PACKAGES \
+          --env ARCH \
           --env CUSTOM_PKG_DIR\
           --env FEEDS_NEED_INSTALL \
           --env EXTRA_FEEDS \
