@@ -41,7 +41,9 @@ if [ -z "$PACKAGES" ]; then
 		done
 	fi
 
-	sh -c $SCRIPT_BEFORE_BUILD
+	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
+		sh -c $SCRIPT_BEFORE_BUILD
+	fi
 
 	make \
 		-j "$(nproc)" \
@@ -56,7 +58,9 @@ else
 		done
 	fi
 
-	sh -c $SCRIPT_BEFORE_BUILD
+	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
+		sh -c $SCRIPT_BEFORE_BUILD
+	fi
 
 	for pkg in $PACKAGES; do
 		make package/$pkg/compile \
