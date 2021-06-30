@@ -68,8 +68,8 @@ else
 	fi
 
 	for pkg in $PACKAGES; do
-		local support_archs=$(echo "$pkg" | awk '{printf $2}')
-		local p=$(echo "$pkg" | awk '{printf $1}')
+		support_archs=$(echo "$pkg" | awk '{printf $2}')
+		p=$(echo "$pkg" | awk '{printf $1}')
 		if [ ! -z $support_archs ];then
 			sup='|' read -r -a array <<< "$support_archs"
 			for arch in "${array[@]}"
