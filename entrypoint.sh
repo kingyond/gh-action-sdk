@@ -68,18 +68,25 @@ else
 	fi
 
 	for pkg in $PACKAGES; do
-		support_archs=$(echo "$pkg" | awk '{printf $2}')
+		blacked_archs=$(echo "$pkg" | awk '{printf $2}')
 		p=$(echo "$pkg" | awk '{printf $1}')
-		if [ ! -z $support_archs ];then
-			sup='|' read -r -a array <<< "$support_archs"
+		if [ ! -z $blacked_archs ];then
+			blacked=''
+			blacked_archs_arr='|' read -r -a array <<< "$blacked_archs"
 			for arch in "${array[@]}"
 			do
 				if [ $ARCH = $arch ]; then
-					make package/$p/compile \
-						-j "$(nproc)" \
-						V=s
+					blacked=$arch
 				fi
 			done
+
+			if [ -z $blacked ]; then
+				make package/$p/compile \
+					-j "$(nproc)" \
+					V=s
+			else
+				echo "$p 不支持 $blacked"
+			fi
 		else
 			make package/$pkg/compile \
 				-j "$(nproc)" \
