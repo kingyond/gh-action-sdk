@@ -41,6 +41,8 @@ if [ -z "$PACKAGES" ]; then
 		done
 	fi
 
+	sh -c $SCRIPT_BEFORE_BUILD
+
 	make \
 		-j "$(nproc)" \
 		V=s
@@ -53,6 +55,8 @@ else
 			./scripts/feeds install -a -p $FEED -f > /dev/null
 		done
 	fi
+
+	sh -c $SCRIPT_BEFORE_BUILD
 
 	for pkg in $PACKAGES; do
 		make package/$pkg/compile \
