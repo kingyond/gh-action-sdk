@@ -41,15 +41,15 @@ if [ -z "$PACKAGES" ]; then
 		done
 	fi
 
-	echo "$SCRIPT_BEFORE_BUILD"
 	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
 		echo "Run script before build..."
+		echo "$SCRIPT_BEFORE_BUILD"
 		sh -c "$SCRIPT_BEFORE_BUILD"
 	fi
 
 	make \
 		-j "$(nproc)" \
-		V=s
+		V="$V"
 
 else
 	if [ -z "$FEEDS_NEED_INSTALL" ]; then
@@ -60,11 +60,11 @@ else
 		done
 	fi
 
-	echo "$SCRIPT_BEFORE_BUILD"
-
 	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
 		echo "Run script before build..."
-		sh -c "$SCRIPT_BEFORE_BUILD"
+		echo "$SCRIPT_BEFORE_BUILD"
+
+		bash -c "$SCRIPT_BEFORE_BUILD"
 	fi
 
 	for pkg in $PACKAGES; do
@@ -81,20 +81,20 @@ else
 			done
 
 			if [ -z $blacked ]; then
-				echo "支持当前架构"
-				echo "开始编译 $p"
+				echo "Package support current architecture, continue..."
+				echo "Start building $p..."
 				make package/$p/compile \
 					-j "$(nproc)" \
-					V=s
+					V="$V"
 			else
 				echo "$p 不支持 $blacked 跳过"
 			fi
 		else
-			echo "支持所有架构"
-			echo "开始编译 $pkg"
+			echo "Package support all architecture, continue..."
+			echo "Start building $pkg..."
 			make package/$pkg/compile \
 				-j "$(nproc)" \
-				V=s
+				V="$V"
 		fi
 	done
 fi

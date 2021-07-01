@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        uses: aparcar/action-openwrt-sdk@composite
+        uses: cielpy/gh-action-sdk@master
         env:
           ARCH: ${{ matrix.arch }}
 
@@ -50,14 +50,12 @@ jobs:
 The action reads a few env variables:
 
 * `ARCH` determines the used OpenWrt SDK Docker container.
-* `BUILD_LOG` stores build logs in `./logs`.
-* `CONTAINER` can set other SDK containers than `openwrt/sdk`.
 * `EXTRA_FEEDS` are added to the `feeds.conf`, where `|` are replaced by white
   spaces.
-* `FEEDNAME` used in the created `feeds.conf` for the current repo. Defaults to
-  `action`.
-* `IGNORE_ERRORS` can ignore failing packages builds.
 * `KEY_BUILD` can be a private Signify/`usign` key to sign the packages feed.
-* `NO_REFRESH_CHECK` disable check if patches need a refresh.
 * `V` changes the build verbosity level.
 * `PACKAGES` define which packages should be compiled, supporte multiple line
+* `INDEX` enable build index of packages. Set 1 to enable.
+* `SCRIPT_BEFORE_BUILD` script need run before build, with string format, not file path.
+* `FEEDS_NEED_INSTALL`, which feed need install.
+* `CUSTOM_PKG_DIR` to build current repositories as a package, this var name the package folder.

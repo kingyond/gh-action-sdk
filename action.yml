@@ -16,6 +16,7 @@ runs:
           --env FEEDS_NEED_INSTALL \
           --env EXTRA_FEEDS \
           --env INDEX \
+          --env V \
           --env SCRIPT_BEFORE_BUILD \
           --workdir /github/workspace \
           -v $(pwd):/github/workspace \
