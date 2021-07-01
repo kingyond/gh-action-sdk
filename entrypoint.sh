@@ -5,6 +5,7 @@ set -ef
 cd /home/build/openwrt/
 
 for pkg in $PACKAGES; do
+	echo "$pkg"
 	blacked_archs=$(echo "$pkg" | awk '{printf $2}')
 	p=$(echo "$pkg" | awk '{printf $1}')
 	echo "==="
