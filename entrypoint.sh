@@ -68,11 +68,11 @@ else
 	fi
 
 	for pkg in $PACKAGES; do
-		blacked_archs=$(echo "$pkg" | awk '{printf $2}')
-		p=$(echo "$pkg" | awk '{printf $1}')
+		blacked_archs=$(echo "$pkg" | awk -F'|' '{printf $2}')
+		p=$(echo "$pkg" | awk -F'|' '{printf $1}')
 		if [ ! -z $blacked_archs ];then
 			blacked=''
-			blacked_archs_arr='|' read -r -a array <<< "$blacked_archs"
+			IFS=',' read -r -a array <<< "$blacked_archs"
 			for arch in "${array[@]}"
 			do
 				if [ $ARCH = $arch ]; then
@@ -81,13 +81,17 @@ else
 			done
 
 			if [ -z $blacked ]; then
+				echo "支持当前架构"
+				echo "开始编译 $p"
 				make package/$p/compile \
 					-j "$(nproc)" \
 					V=s
 			else
-				echo "$p 不支持 $blacked"
+				echo "$p 不支持 $blacked 跳过"
 			fi
 		else
+			echo "支持所有架构"
+			echo "开始编译 $pkg"
 			make package/$pkg/compile \
 				-j "$(nproc)" \
 				V=s
