@@ -13,7 +13,7 @@ for pkg in $PACKAGES; do
 	echo "$p"
 	if [ ! -z $blacked_archs ];then
 		blacked=''
-		blacked_archs_arr=',' read -r -a array <<< "$blacked_archs"
+		IFS=',' read -r -a array <<< "$blacked_archs"
 		for arch in "${array[@]}"
 		do
 			echo "$arch"
