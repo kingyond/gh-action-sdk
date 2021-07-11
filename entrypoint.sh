@@ -37,7 +37,7 @@ if [ -z "$PACKAGES" ]; then
 		./scripts/feeds install -d y -a
 	else
 		for FEED in $FEEDS_NEED_INSTALL; do
-			./scripts/feeds install -d y -a -p $FEED -f > /dev/null
+			./scripts/feeds install -d y -a -p $FEED > /dev/null
 		done
 	fi
 
@@ -56,7 +56,7 @@ else
 		./scripts/feeds install -a
 	else
 		for FEED in $FEEDS_NEED_INSTALL; do
-			./scripts/feeds install -a -p $FEED -f > /dev/null
+			./scripts/feeds install -a -p $FEED > /dev/null
 		done
 	fi
 
