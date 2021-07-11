@@ -53,7 +53,7 @@ if [ -z "$PACKAGES" ]; then
 
 else
 	if [ -z "$FEEDS_NEED_INSTALL" ]; then
-		./scripts/feeds install -f -a
+		./scripts/feeds install -a
 	else
 		for FEED in $FEEDS_NEED_INSTALL; do
 			./scripts/feeds install -a -p $FEED -f > /dev/null
