@@ -34,7 +34,7 @@ if [ -z "$PACKAGES" ]; then
 	# compile all packages in feed
 
 	if [ -z "$FEEDS_NEED_INSTALL" ]; then
-		./scripts/feeds install -d y -f -a
+		./scripts/feeds install -d y -a
 	else
 		for FEED in $FEEDS_NEED_INSTALL; do
 			./scripts/feeds install -d y -a -p $FEED -f > /dev/null
