@@ -26,7 +26,7 @@ cat feeds.conf
 make defconfig > /dev/null
 
 if [ ! -z "$CUSTOM_PKG_DIR" ];then
-	cp -r /github/workspace "package/$CUSTOM_PKG_DIR"
+	cp -r "/github/workspace/$CUSTOM_SRC_DIR" "package/$CUSTOM_PKG_DIR"
 fi
 
 

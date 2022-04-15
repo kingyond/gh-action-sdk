@@ -59,3 +59,4 @@ The action reads a few env variables:
 * `SCRIPT_BEFORE_BUILD` script need run before build, with string format, not file path.
 * `FEEDS_NEED_INSTALL`, which feed need install.
 * `CUSTOM_PKG_DIR` to build current repositories as a package, this var name the package folder.
+* `CUSTOM_SRC_DIR` this var name for the src folder.
