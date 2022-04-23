@@ -9,6 +9,10 @@ sudo apt-get install upx -y
 cp /usr/bin/upx staging_dir/host/bin
 cp /usr/bin/upx-ucl staging_dir/host/bin
 
+git clone https://github.com/kingyond/po2lmo.git
+pushd  po2lmo
+make && sudo make install
+popd
 
 if [ -n "$KEY_BUILD" ]; then
 	echo "$KEY_BUILD" > key-build
