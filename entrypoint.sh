@@ -2,23 +2,30 @@
 
 set -ef
 
-cd /home/build/immortalwrt/
+FEEDNAME="${FEEDNAME:-action}"
+BUILD_LOG="${BUILD_LOG:-1}"
 
-sudo apt-get update
-sudo apt-get install upx -y
-cp /usr/bin/upx staging_dir/host/bin
-cp /usr/bin/upx-ucl staging_dir/host/bin
+cd /home/build/immortalwrt/
 
 if [ -n "$KEY_BUILD" ]; then
 	echo "$KEY_BUILD" > key-build
+	SIGNED_PACKAGES="y"
 fi
 
-cat feeds.conf.default >> feeds.conf
+if [ -z "$NO_DEFAULT_FEEDS" ]; then
+	cat feeds.conf.default >> feeds.conf
+fi
 
+echo "src-link $FEEDNAME /feed/" >> feeds.conf
+
+ALL_CUSTOM_FEEDS=
 #shellcheck disable=SC2153
 for EXTRA_FEED in $EXTRA_FEEDS; do
 	echo "$EXTRA_FEED" | tr '|' ' ' >> feeds.conf
+	ALL_CUSTOM_FEEDS+="$(echo "$EXTRA_FEED" | cut -d'|' -f2) "
 done
+ALL_CUSTOM_FEEDS+="$FEEDNAME"
+
 cat feeds.conf
 
 ./scripts/feeds update -a > /dev/null
@@ -28,82 +35,106 @@ if [ ! -z "$CUSTOM_PKG_DIR" ];then
 	cp -r "/github/workspace/$CUSTOM_SRC_DIR" "package/$CUSTOM_PKG_DIR"
 fi
 
-
 if [ -z "$PACKAGES" ]; then
 	# compile all packages in feed
-
-	if [ -z "$FEEDS_NEED_INSTALL" ]; then
-		./scripts/feeds install -d y -a
-	else
-		for FEED in $FEEDS_NEED_INSTALL; do
-			./scripts/feeds install -d y -a -p $FEED > /dev/null
+	for FEED in $ALL_CUSTOM_FEEDS; do
+		./scripts/feeds install -p "$FEED" -f -a
+	done
+	make \
+		BUILD_LOG="$BUILD_LOG" \
+		SIGNED_PACKAGES="$SIGNED_PACKAGES" \
+		IGNORE_ERRORS="$IGNORE_ERRORS" \
+		V="$V" \
+		-j "$(nproc)"
+else
+	# compile specific packages with checks
+	for PKG in $PACKAGES; do
+		for FEED in $ALL_CUSTOM_FEEDS; do
+			./scripts/feeds install -p "$FEED" -f "$PKG"
 		done
-	fi
+		make \
+			BUILD_LOG="$BUILD_LOG" \
+			IGNORE_ERRORS="$IGNORE_ERRORS" \
+			"package/$PKG/download" V=s || \
+				exit $?
 
-	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
-		echo "Run script before build..."
-		echo "$SCRIPT_BEFORE_BUILD"
-		sh -c "$SCRIPT_BEFORE_BUILD"
-	fi
+		make \
+			BUILD_LOG="$BUILD_LOG" \
+			IGNORE_ERRORS="$IGNORE_ERRORS" \
+			"package/$PKG/check" V=s 2>&1 | \
+				tee logtmp
+
+		RET=${PIPESTATUS[0]}
+
+		if [ "$RET" -ne 0 ]; then
+			echo_red   "=> Package check failed: $RET)"
+			exit "$RET"
+		fi
+
+		badhash_msg="HASH does not match "
+		badhash_msg+="|HASH uses deprecated hash,"
+		badhash_msg+="|HASH is missing,"
+		if grep -qE "$badhash_msg" logtmp; then
+			echo "Package HASH check failed"
+			exit 1
+		fi
+
+		PATCHES_DIR=$(find /feed -path "*/$PKG/patches")
+		if [ -d "$PATCHES_DIR" ] && [ -z "$NO_REFRESH_CHECK" ]; then
+			make \
+				BUILD_LOG="$BUILD_LOG" \
+				IGNORE_ERRORS="$IGNORE_ERRORS" \
+				"package/$PKG/refresh" V=s || \
+					exit $?
+
+			if ! git -C "$PATCHES_DIR" diff --quiet -- .; then
+				echo "Dirty patches detected, please refresh and review the diff"
+				git -C "$PATCHES_DIR" checkout -- .
+				exit 1
+			fi
+		fi
+
+		FILES_DIR=$(find /feed -path "*/$PKG/files")
+		if [ -d "$FILES_DIR" ] && [ -z "$NO_SHFMT_CHECK" ]; then
+			find "$FILES_DIR" -name "*.init" -exec shfmt -w -sr -s '{}' \;
+			if ! git -C "$FILES_DIR" diff --quiet -- .; then
+				echo "init script must be formatted. Please run through shfmt -w -sr -s"
+				git -C "$FILES_DIR" checkout -- .
+				exit 1
+			fi
+		fi
+
+	done
 
 	make \
-		-j "$(nproc)" \
-		V="$V"
+		-f .config \
+		-f tmp/.packagedeps \
+		-f <(echo "\$(info \$(sort \$(package-y) \$(package-m)))"; echo -en "a:\n\t@:") \
+			| tr ' ' '\n' > enabled-package-subdirs.txt
 
-else
-	if [ -z "$FEEDS_NEED_INSTALL" ]; then
-		./scripts/feeds install -a
-	else
-		for FEED in $FEEDS_NEED_INSTALL; do
-			./scripts/feeds install -a -p $FEED > /dev/null
-		done
-	fi
-
-	if [ ! -z "$SCRIPT_BEFORE_BUILD" ]; then
-		echo "Run script before build..."
-		echo "$SCRIPT_BEFORE_BUILD"
-
-		bash -c "$SCRIPT_BEFORE_BUILD"
-	fi
-
-	for pkg in $PACKAGES; do
-		blacked_archs=$(echo "$pkg" | awk -F'|' '{printf $2}')
-		p=$(echo "$pkg" | awk -F'|' '{printf $1}')
-		if [ ! -z $blacked_archs ];then
-			blacked=''
-			IFS=',' read -r -a array <<< "$blacked_archs"
-			for arch in "${array[@]}"
-			do
-				if [ $ARCH = $arch ]; then
-					blacked=$arch
-				fi
-			done
-
-			if [ -z $blacked ]; then
-				echo "Package support current architecture, continue..."
-				echo "Start building $p..."
-				make package/$p/compile \
-					-j "$(nproc)" \
-					V="$V"
-			else
-				echo "$p 不支持 $blacked 跳过"
-			fi
-		else
-			echo "Package support all architecture, continue..."
-			echo "Start building $pkg..."
-			make package/$pkg/compile \
-				-j "$(nproc)" \
-				V="$V"
+	for PKG in $PACKAGES; do
+		if ! grep -m1 -qE "(^|/)$PKG$" enabled-package-subdirs.txt; then
+			echo "::warning file=$PKG::Skipping $PKG due to unsupported architecture"
+			continue
 		fi
+
+		make \
+			BUILD_LOG="$BUILD_LOG" \
+			IGNORE_ERRORS="$IGNORE_ERRORS" \
+			V="$V" \
+			-j "$(nproc)" \
+			"package/$PKG/compile" || {
+				RET=$?
+				make "package/$PKG/compile" V=s -j 1
+				exit $RET
+			}
 	done
 fi
 
-if [ "$INDEX" = 1 ];then
-	make package/index
+if [ -d bin/ ]; then
+	mv bin/ /artifacts/
 fi
 
-
-if [ -d bin/ ]; then
-	ls -R bin/
-	mv bin/ "$GITHUB_WORKSPACE/"
+if [ -d logs/ ]; then
+	mv logs/ /artifacts/
 fi
