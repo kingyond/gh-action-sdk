@@ -111,5 +111,5 @@ if [ -d bin/ ]; then
 fi
 
 if [ -d logs/ ]; then
-	mv bin/ "$GITHUB_WORKSPACE/"
+	mv logs/ "$GITHUB_WORKSPACE/"
 fi
