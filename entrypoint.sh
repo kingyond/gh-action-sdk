@@ -2,7 +2,7 @@
 
 set -ef
 
-cd /home/build/openwrt/
+cd /home/build/immortalwrt/
 
 sudo apt-get update
 sudo apt-get install upx -y
